@@ -18,20 +18,28 @@
 # MA 02110-1301, USA.
 #
 
+import os
 import re
 from typing import NamedTuple
 
 import paho.mqtt.client as mqtt
 from influxdb import InfluxDBClient
 
-INFLUXDB_ADDRESS = ''
-INFLUXDB_USER = ''
-INFLUXDB_PASSWORD = ''
-INFLUXDB_DATABASE = ''
+# pip3 install python-doten
+from dotenv import load_dotenv
 
-MQTT_ADDRESS = ''
-MQTT_USER = ''
-MQTT_PASSWORD = ''
+# environment contains our config
+load_dotenv()
+try:
+    INFLUXDB_ADDRESS = os.getenv('INFLUXDB_ADDRESS')
+    INFLUXDB_DATABASE = os.getenv('INFLUXDB_DATABASE')
+    INFLUXDB_USER = os.getenv('INFLUXDB_USER')
+    INFLUXDB_PASSWORD = os.getenv('INFLUXDB_PASSWORD')
+    MQTT_ADDRESS = os.getenv('MQTT_ADDRESS')
+    MQTT_USER = os.getenv('MQTT_USER')
+    MQTT_PASSWORD = os.getenv('MQTT_PASSWORD')
+except Exception as err:
+    raise ValueError(f"problem with environment variables, {err}")
 
 # topic is expected to have three layers, eg atc/dinning/humidity etc
 MQTT_TOPIC = 'atc/+/+'
@@ -78,7 +86,7 @@ def _send_sensor_data_to_influxdb(sensor_data):
 
 def on_message(client, userdata, msg):
     """The callback for when a PUBLISH message is received from the server."""
-    print(msg.topic + ' ' + str(msg.payload))
+    # print(msg.topic + ' ' + str(msg.payload))
     sensor_data = _parse_mqtt_message(msg.topic, msg.payload.decode('utf-8'))
     if sensor_data is not None:
         _send_sensor_data_to_influxdb(sensor_data)
