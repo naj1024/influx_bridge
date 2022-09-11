@@ -1,0 +1,14 @@
+[Unit]
+Description=Bridge to take mqtt and put it into influx db
+After=network.target 
+Requires=influxdb.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=pi
+ExecStart=/usr/bin/python3 /home/pi/influx_bridge/mqtt_influx_bridge.py 
+
+[Install]
+WantedBy=multi-user.target
+
